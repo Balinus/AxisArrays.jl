@@ -222,15 +222,19 @@ for C in (A, B)
         end
         C1t = @inferred(op(C, Axis{:y}))
         @test C1t == C1
-        C2t = @inferred(op(C, Axis{:x}))
-        @test C2t == C2
-        C12t = @inferred(op(C, (Axis{:y},Axis{:x})))
-        @test C12t == C12
-        C1t = @inferred(op(C, Axis{:y}()))
-        @test C1t == C1
-        C2t = @inferred(op(C, Axis{:x}()))
-        @test C2t == C2
-        C12t = @inferred(op(C, (Axis{:y}(),Axis{:x}())))
-        @test C12t == C12
+        # Julia 0.5.x hangs in inference on the following tests when
+        # inlining is off.  We want this fixed for Julia 0.6.
+        if VERSION > v"0.6.0-dev.1" || Base.JLOptions().can_inline==1
+            C2t = @inferred(op(C, Axis{:x}))
+            @test C2t == C2
+            C12t = @inferred(op(C, (Axis{:y},Axis{:x})))
+            @test C12t == C12
+            C1t = @inferred(op(C, Axis{:y}()))
+            @test C1t == C1
+            C2t = @inferred(op(C, Axis{:x}()))
+            @test C2t == C2
+            C12t = @inferred(op(C, (Axis{:y}(),Axis{:x}())))
+            @test C12t == C12
+        end
     end
 end
